@@ -1,0 +1,32 @@
+{
+  "name": "2025mst-ai-vtuber",
+  "version": "1.0.0",
+  "description": "2025年未来創造展AI Vtuberアプリケーション",
+  "main": "app/electron/electron.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build && electron .",
+    "build": "webpack --config webpack.config.js",
+    "dev": "webpack serve --mode development",
+    "electron": "electron .",
+    "package": "npx electron-packager . --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^32.1.1",
+    "electron-builder": "^25.0.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
+    "@babel/preset-react": "^7.24.7",
+    "babel-loader": "^9.2.1",
+    "electron-packager": "^17.1.2",
+    "html-webpack-plugin": "^5.6.0",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

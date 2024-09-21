@@ -1,0 +1,10 @@
+Flask==2.3.2
+Flask-SocketIO==5.3.4
+faster-whisper==1.0.3
+webrtcvad==2.0.10
+torch==2.0.1
+flask-cors==3.0.10
+python-socketio==5.7.2
+eventlet==0.33.3
+numpy==2.1.1
+wave==0.0.2
