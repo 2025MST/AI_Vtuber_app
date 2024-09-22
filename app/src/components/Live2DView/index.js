@@ -20,15 +20,15 @@ const Live2DView = () => {
 
         const app = new PIXI.Application({ 
             view: canvasRef.current,
-            width: window.innerWidth * 0.8,
-            height: window.innerHeight * 0.8,
+            width: window.innerWidth * 0.9,
+            height: window.innerHeight * 0.9,
             backgroundColor: 0x1099bb,
         });
 
         const Live2DLoader = async () => {
             
             try {
-                model = await Live2DModel.from('../../public/runtime/hiyori_free_t08.model3.json');
+                model = await Live2DModel.from('../../public/model/Kei/kei_basic_free.model3.json');
                 console.log("Model loaded", model);
                 app.stage.addChild(model);
 
@@ -49,8 +49,9 @@ const Live2DView = () => {
         // ウィンドウサイズ変更時の処理
         window.addEventListener('resize', () => {
             
-            //model.position.set(window.innerWidth / 2, window.innerHeight / 2);
-            
+            app.renderer.resize(window.innerWidth * 0.9, window.innerHeight * 0.9);
+            model.position.set(app.view.width / 2, app.view.height / 2);
+
         });
         
         return () => {
