@@ -12,10 +12,13 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: false,
-            nodeIntegration: true
+            nodeIntegration: true,
+            webSecurity: false,
         },
         autoHideMenuBar: true
     });
+
+    mainWindow.webContents.openDevTools();
 
     mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
 

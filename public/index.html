@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025MST AI Vtuber</title>
+</head>
+<body>
+    <div id="root"></div>
+
+    <% for (var script of htmlWebpackPlugin.options.templateParameters.scripts) { %>
+        <script src="<%= script %>"></script>
+    <% } %>
+</body>
+</html>
