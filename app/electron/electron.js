@@ -15,10 +15,13 @@ function createWindow() {
             nodeIntegration: true,
             webSecurity: false,
         },
+        resizable : true,
         autoHideMenuBar: true
     });
 
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools(); // 開発用
+
+    mainWindow.maximize();
 
     mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
 
