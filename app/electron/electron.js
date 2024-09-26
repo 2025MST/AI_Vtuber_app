@@ -8,10 +8,12 @@ let pythonServer;
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
-        height: 900,
+        height: 1200,
+        minWidth: 1030,
+        minHeight: 1030,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: false,
+            contextIsolation: true,
             nodeIntegration: true,
             webSecurity: false,
         },
