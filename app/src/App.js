@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Live2DView from './components/Live2DView';
 import { Box, FormControl, IconButton, InputLabel, MenuItem, Modal, Select, Stack, TextField, Typography } from '@mui/material';
-import { Comment, CommentsDisabled, Mic, MicOff, Settings, TextFields } from '@mui/icons-material';
+import { Comment, CommentsDisabled, Mic, MicOff, Send, Settings, TextFields } from '@mui/icons-material';
 
 function App() {
 
@@ -11,6 +11,7 @@ function App() {
 	const [togleComment, setTogleComment] = useState(false);
 	const [audioDeviceList, setAudioDeviceList] = useState([]);
 	const [selectedAudioDevice, setSelectedAudioDevice] = useState(null);
+	const [sendText, setSendText] = useState("");
 	const [twitchUrl, setTwitchUrl] = useState("");
 
 	const refreshDevices = useCallback(async () => {
@@ -56,6 +57,10 @@ function App() {
 
 	const handleChangeAudioDevice = (event) => {
 		setSelectedAudioDevice(event.target.value);
+	}
+
+	const handleChangeSendText = (event) => {
+		setSendText(event.target.value);
 	}
 
 	const handleChangeTwitchUrl = (event) => {
@@ -127,6 +132,25 @@ function App() {
 					</FormControl>
 				</Box>
 			</Modal>
+
+			{togleText && (
+				<Box sx={{
+					position: 'fixed',
+					bottom: '3%',
+					left : '50%',
+					transform: 'translate(-50%,-50%)',
+					width: 800,
+					backgroundColor: '#f8f8f8',
+					borderRadius : 5,
+					display: 'flex',
+					justifyContent: 'center'
+				}}>
+						<TextField onChange={handleChangeSendText} value={sendText} sx={{ flexGrow: 1, margin: 2 }} />
+						<IconButton>
+							<Send fontSize="inherit" />
+						</IconButton>
+				</Box>
+			)}
 
 			<Live2DView />
 		</div>
