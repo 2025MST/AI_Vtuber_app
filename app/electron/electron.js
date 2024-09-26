@@ -42,7 +42,7 @@ function createWindow() {
 app.whenReady().then(() => {
     // Python Flaskサーバーを起動
     const pythonCmd = process.platform == 'win32' ? 'python' : 'python3';
-    pythonServer = spawn(pythonCmd, ['app/python/app.py'], {
+    pythonServer = spawn(pythonCmd, [path.join(__dirname, '../python/app.py')], {
         stdio: ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, PYTHONBUFFERED: '1' }
     });
