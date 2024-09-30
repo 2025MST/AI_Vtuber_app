@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Live2DView from './components/Live2DView';
 import { Box, FormControl, IconButton, InputLabel, MenuItem, Modal, Select, Stack, TextField, Typography } from '@mui/material';
 import { Comment, CommentsDisabled, Mic, MicOff, Send, Settings, TextFields } from '@mui/icons-material';
+import { TogleButton } from './components/TogleButton';
 
 function App() {
 
@@ -75,27 +76,38 @@ function App() {
 				position: 'absolute',
 				margin: '10px'
 			}}>
-				<IconButton aria-label="setting" size='large' onClick={handleSettingButton} >
-					<Settings fontSize="inherit" />
-				</IconButton>
-				<IconButton aria-label='audioMute' size='large' onClick={handleTogleMuteButton} sx={{
-					backgroundColor : togleMute ? 'white' : 'black',
-					color : togleMute ? 'black' : 'white',
-				}}>
-					{togleMute ? <Mic fontSize="inherit" /> : <MicOff fontSize="inherit" />}
-				</IconButton>
-				<IconButton aria-label="textBox" size='large' onClick={handleTogleTextButton} sx={{
-					backgroundColor : togleText ? 'white' : 'black',
-					color : togleText ? 'black' : 'white'
-				}}>
-					<TextFields fontSize="inherit" />
-				</IconButton>
-				<IconButton aria-label="commentBox" size='large' onClick={handleTogleCommentButton} sx={{
-					background : togleComment ? 'white' : 'black',
-					color : togleComment ? 'black' : 'white',
-				}}>
-					{togleComment ? <Comment fontSize="inherit" /> : <CommentsDisabled fontSize="inherit" />}
-				</IconButton>
+				<TogleButton
+					label={"setting"} 
+					onClick={() => setSettingOpen(!settingOpen)}
+					innerIcon={<Settings fontSize='inherit' />}
+				/>
+				<TogleButton
+					label={"audioMute"}
+					onClick={() => setTogleMute(!togleMute)}
+					style={{
+						backgroundColor : togleMute ? 'white' : 'black',
+						color : togleMute ? 'black' : 'white',
+					}}
+					innerIcon={togleMute ? <Mic fontSize='inherit' /> : <MicOff fontSize='inherit' />}
+				/>
+				<TogleButton
+					label={"textBox"}
+					onClick={() => setTogleText(!togleText)}
+					style={{
+						backgroundColor : togleText ? 'white' : 'black',
+						color : togleText ? 'black' : 'white'
+					}}
+					innerIcon={<TextFields fontSize="inherit" />}
+				/>
+				<TogleButton
+					label={"commentBox"}
+					onClick={() => setTogleComment(!togleComment)}
+					style={{
+						background : togleComment ? 'white' : 'black',
+						color : togleComment ? 'black' : 'white',
+					}}
+					innerIcon={togleComment ? <Comment fontSize="inherit" /> : <CommentsDisabled fontSize="inherit" />}
+				/>
 			</Stack>
 
 			<Modal
