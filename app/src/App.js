@@ -36,22 +36,6 @@ function App() {
 		getAudioDevice();
 	},[]);
 
-	const handleSettingButton = () => {
-		setSettingOpen(!settingOpen);
-	}
-
-	const handleTogleMuteButton = () => {
-		setTogleMute(!togleMute);
-	}
-
-	const handleTogleTextButton = () => {
-		setTogleText(!togleText);
-	}
-
-	const handleTogleCommentButton = () => {
-		setTogleComment(!togleComment);
-	}
-
 	const handleCloseSetting = () => {
 		setSettingOpen(false);
 	}
