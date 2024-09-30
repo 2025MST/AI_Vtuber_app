@@ -21,7 +21,7 @@ function createWindow() {
         autoHideMenuBar: true
     });
 
-    mainWindow.webContents.openDevTools(); // 開発用
+    // mainWindow.webContents.openDevTools(); // 開発用
 
     mainWindow.maximize();
 
