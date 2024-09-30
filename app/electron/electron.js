@@ -8,14 +8,22 @@ let pythonServer;
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
-        height: 900,
+        height: 1200,
+        minWidth: 1030,
+        minHeight: 1030,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: false,
-            nodeIntegration: true
+            contextIsolation: true,
+            nodeIntegration: true,
+            webSecurity: false,
         },
+        resizable : true,
         autoHideMenuBar: true
     });
+
+    // mainWindow.webContents.openDevTools(); // 開発用
+
+    mainWindow.maximize();
 
     mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
 
@@ -36,7 +44,7 @@ function createWindow() {
 app.whenReady().then(() => {
     // Python Flaskサーバーを起動
     const pythonCmd = process.platform == 'win32' ? 'python' : 'python3';
-    pythonServer = spawn(pythonCmd, ['app/python/app.py'], {
+    pythonServer = spawn(pythonCmd, [path.join(__dirname, '../python/app.py')], {
         stdio: ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, PYTHONBUFFERED: '1' }
     });

@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -16,18 +17,41 @@ module.exports = {
             use: {
             loader: 'babel-loader'
             }
+        },{
+            test: /\.(png|svg|jpg|gif|model3|json)$/,
+            use: ['file-loader'],
         }
         ]
     },
     resolve: {
+        fallback: {
+            path: require.resolve('path-browserify')
+        },
         extensions: ['.js', '.jsx']
     },
     plugins: [
         new HtmlWebpackPlugin({
-        template: './app/public/index.html'  // テンプレートHTMLファイル
+            template: 'public/index.html',  // テンプレートHTMLファイル
+            inject: 'body',  // bodyタグの最後に挿入
+            scriptLoading: 'defer',
+            // カスタムスクリプトを手動で追加
+            templateParameters: {
+                scripts: [
+                    './lib/live2d.min.js',
+                    './lib/live2dcubismcore.min.js',
+                ]
+            }
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {from: 'public/lib', to: 'lib'}
+            ]
         })
     ],
     devServer: {
+        static: {
+            directory: path.join(__dirname, 'public')
+        },
         contentBase: path.join(__dirname, 'app/build'),
         compress: true,
         port: 9000

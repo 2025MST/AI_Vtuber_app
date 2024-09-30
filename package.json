@@ -9,13 +9,21 @@
     "build": "webpack --config webpack.config.js",
     "dev": "webpack serve --mode development",
     "electron": "electron .",
-    "package": "npx electron-packager . --platform=win32 --arch=x64 --out=dist --overwrite"
+    "package": "npm run build && npx electron-packager . --out=dist --overwrite"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron": "^32.1.1",
-    "electron-builder": "^25.0.5",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.1",
+    "@mui/material": "^6.1.1",
+    "copy-webpack-plugin": "^12.0.2",
+    "file-loader": "^6.2.0",
+    "patch-package": "^8.0.0",
+    "path-browserify": "^1.0.1",
+    "pixi-live2d-display": "^0.4.0",
+    "pixi.js": "^6.5.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -24,6 +32,8 @@
     "@babel/preset-env": "^7.25.4",
     "@babel/preset-react": "^7.24.7",
     "babel-loader": "^9.2.1",
+    "electron": "^32.1.2",
+    "electron-builder": "^25.0.5",
     "electron-packager": "^17.1.2",
     "html-webpack-plugin": "^5.6.0",
     "webpack": "^5.94.0",

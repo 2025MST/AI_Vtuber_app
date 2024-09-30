@@ -12,6 +12,7 @@ dist/
 app/build/
 /electron-builder/
 
+
 venv/
 env/
 .venv/
