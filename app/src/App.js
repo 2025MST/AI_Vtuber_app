@@ -3,6 +3,8 @@ import Live2DView from './components/Live2DView';
 import { Box, FormControl, IconButton, InputLabel, MenuItem, Modal, Select, Stack, TextField, Typography } from '@mui/material';
 import { Comment, CommentsDisabled, Mic, MicOff, Send, Settings, TextFields } from '@mui/icons-material';
 import { TogleButton } from './components/TogleButton';
+import { SettingModal } from './components/SettingModal';
+import { SendTextBox } from './components/SendTextBox';
 
 function App() {
 
@@ -14,14 +16,6 @@ function App() {
 	const [selectedAudioDevice, setSelectedAudioDevice] = useState(null);
 	const [sendText, setSendText] = useState("");
 	const [twitchUrl, setTwitchUrl] = useState("");
-
-	const refreshDevices = useCallback(async () => {
-		const latestDevices = (
-			await navigator.mediaDevices.enumerateDevices()
-		).filter((device) => device.kind === "audioinput");
-
-		setAudioDeviceList(latestDevices);
-	},[])
 
 	useEffect(() => {
 		const getAudioDevice = async () => {
@@ -35,22 +29,6 @@ function App() {
 
 		getAudioDevice();
 	},[]);
-
-	const handleCloseSetting = () => {
-		setSettingOpen(false);
-	}
-
-	const handleChangeAudioDevice = (event) => {
-		setSelectedAudioDevice(event.target.value);
-	}
-
-	const handleChangeSendText = (event) => {
-		setSendText(event.target.value);
-	}
-
-	const handleChangeTwitchUrl = (event) => {
-		setTwitchUrl(event.target.value);
-	}
 
 	return (
 		<div>
@@ -96,56 +74,22 @@ function App() {
 
 			<Modal
 				open={settingOpen}
-				onClose={handleCloseSetting}
+				onClose={() => setSettingOpen(false)}
 			>
-				<Box sx={{
-					position: 'absolute',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-					background: 'white',
-					width: '60%',
-					height: '50%',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					flexDirection: 'column'
-				}}>
-					<h2>設定</h2>
-					<FormControl sx={{ m: 1, minWidth: 150, maxWidth: 500}}>
-						<InputLabel id="selected-AudioDevice" sx={{display: 'flex'}}>
-							<Mic />
-							<Typography>オーディオデバイス</Typography>
-						</InputLabel>
-						<Select labelId='selected-AudioDevice' value={selectedAudioDevice} onChange={handleChangeAudioDevice} sx={{ width: 500 }}>
-							{audioDeviceList.map((device) => (
-								<MenuItem value={device.deviceId}>{device.label}</MenuItem>
-							))}
-						</Select>
-					</FormControl>
-					<FormControl sx={{ m: 1, minWidth: 150, maxWidth: 500 }}>
-						<TextField labelId='twitchUrl' onChange={handleChangeTwitchUrl} value={twitchUrl} sx={{ width: 500 }} placeholder='Twitch URL'/>
-					</FormControl>
-				</Box>
+				<SettingModal
+					audioDeviceList={audioDeviceList}
+					twitchUrl={twitchUrl}
+					selectedAudioDevice={selectedAudioDevice}
+					setSelectedAudioDevice={(event) => setSelectedAudioDevice(event.target.value)}
+					setTwitchUrl={(event) => setTwitchUrl(event.target.value)}
+				/>
 			</Modal>
 
 			{togleText && (
-				<Box sx={{
-					position: 'fixed',
-					bottom: '3%',
-					left : '50%',
-					transform: 'translate(-50%,-50%)',
-					width: 800,
-					backgroundColor: '#f8f8f8',
-					borderRadius : 5,
-					display: 'flex',
-					justifyContent: 'center'
-				}}>
-						<TextField onChange={handleChangeSendText} value={sendText} sx={{ flexGrow: 1, margin: 2 }} />
-						<IconButton>
-							<Send fontSize="inherit" />
-						</IconButton>
-				</Box>
+				<SendTextBox
+					sendText={sendText}
+					setSendText={(event) => setSendText(event.target.value)}
+				/>
 			)}
 
 			<Live2DView />
