@@ -25,7 +25,8 @@
     "pixi-live2d-display": "^0.4.0",
     "pixi.js": "^6.5.10",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "socket.io-client": "^4.8.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -35,8 +36,12 @@
     "electron": "^32.1.2",
     "electron-builder": "^25.0.5",
     "electron-packager": "^17.1.2",
+    "electron-reload": "^2.0.0-alpha.1",
     "html-webpack-plugin": "^5.6.0",
-    "webpack": "^5.94.0",
-    "webpack-cli": "^5.1.4"
+    "react-refresh": "^0.14.2",
+    "react-refresh-webpack-plugin": "^0.1.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
   }
 }

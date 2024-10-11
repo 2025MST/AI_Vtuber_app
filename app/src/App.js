@@ -5,6 +5,8 @@ import { Comment, CommentsDisabled, Mic, MicOff, Send, Settings, TextFields } fr
 import { TogleButton } from './components/TogleButton';
 import { SettingModal } from './components/SettingModal';
 import { SendTextBox } from './components/SendTextBox';
+import { ChatBox } from './components/ChatBox';
+import io from 'socket.io-client';
 
 function App() {
 
@@ -16,6 +18,8 @@ function App() {
 	const [selectedAudioDevice, setSelectedAudioDevice] = useState(null);
 	const [sendText, setSendText] = useState("");
 	const [twitchUrl, setTwitchUrl] = useState("");
+
+	const socket = io("http://localhost:5000");
 
 	useEffect(() => {
 		const getAudioDevice = async () => {
@@ -29,6 +33,14 @@ function App() {
 
 		getAudioDevice();
 	},[]);
+
+	useEffect(() => {
+		console.log("コネクト！！！！！");
+		console.log(socket);
+		return(() => {
+			socket.disconnect();
+		})
+	},[socket]);
 
 	return (
 		<div>
@@ -51,15 +63,6 @@ function App() {
 						color : togleMute ? 'black' : 'white',
 					}}
 					innerIcon={togleMute ? <Mic fontSize='inherit' /> : <MicOff fontSize='inherit' />}
-				/>
-				<TogleButton
-					label={"textBox"}
-					onClick={() => setTogleText(!togleText)}
-					style={{
-						backgroundColor : togleText ? 'white' : 'black',
-						color : togleText ? 'black' : 'white'
-					}}
-					innerIcon={<TextFields fontSize="inherit" />}
 				/>
 				<TogleButton
 					label={"commentBox"}
@@ -85,11 +88,8 @@ function App() {
 				/>
 			</Modal>
 
-			{togleText && (
-				<SendTextBox
-					sendText={sendText}
-					setSendText={(event) => setSendText(event.target.value)}
-				/>
+			{togleComment && (
+				<ChatBox socket={socket} />
 			)}
 
 			<Live2DView />

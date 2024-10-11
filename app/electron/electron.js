@@ -1,15 +1,18 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, globalShortcut } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
+require('electron-reload')(path.join(__dirname, '../build'),{
+    electron: require(`${__dirname}/../../node_modules/electron`)
+})
 
 let mainWindow;
 let pythonServer;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1200,
+        width: 1500,
         height: 1200,
-        minWidth: 1030,
+        minWidth: 1500,
         minHeight: 1030,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
@@ -18,12 +21,10 @@ function createWindow() {
             webSecurity: false,
         },
         resizable : true,
-        autoHideMenuBar: true
+        autoHideMenuBar: true,
+        fullscreenable: true,
+        maximizable: true,
     });
-
-    // mainWindow.webContents.openDevTools(); // 開発用
-
-    mainWindow.maximize();
 
     mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
 
@@ -57,6 +58,22 @@ app.whenReady().then(() => {
     });
 
     createWindow();
+
+    // F12キーでフルスクリーンのトグル
+    globalShortcut.register('F12', () => {
+        const isFullScreen = mainWindow.isFullScreen();
+        mainWindow.setFullScreen(!isFullScreen);  // フルスクリーン状態の切り替え
+    });
+
+    // F11キーで開発者ツールのトグル
+    globalShortcut.register('F11', () => {
+        const isDevToolsOpened = mainWindow.webContents.isDevToolsOpened();
+        if (isDevToolsOpened) {
+            mainWindow.webContents.closeDevTools();
+        } else {
+            mainWindow.webContents.openDevTools();
+        }
+    });
 });
 
 app.on('window-all-closed', () => {

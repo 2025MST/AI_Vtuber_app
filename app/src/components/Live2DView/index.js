@@ -34,7 +34,7 @@ const Live2DView = () => {
                 model.internalModel.focusController.vx = 0;
                 model.internalModel.focusController.vy = 0;
                 model.internalModel.focusController.targetX = 0;
-                model.internalMOdel.focusController.targetY = 0;
+                model.internalModel.focusController.targetY = 0;
             }
         };
 
