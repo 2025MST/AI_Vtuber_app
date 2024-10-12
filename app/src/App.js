@@ -5,6 +5,8 @@ import { Comment, CommentsDisabled, Mic, MicOff, Send, Settings, TextFields } fr
 import { TogleButton } from './components/TogleButton';
 import { SettingModal } from './components/SettingModal';
 import { SendTextBox } from './components/SendTextBox';
+import io from 'socket.io-client';
+import { useAudioStream } from './hooks/useAudioStream';
 
 function App() {
 
@@ -16,6 +18,10 @@ function App() {
 	const [selectedAudioDevice, setSelectedAudioDevice] = useState(null);
 	const [sendText, setSendText] = useState("");
 	const [twitchUrl, setTwitchUrl] = useState("");
+
+	const socket = io("http://localhost:5000");
+
+	//useAudioStream(selectedAudioDevice, togleMute);
 
 	useEffect(() => {
 		const getAudioDevice = async () => {
@@ -29,6 +35,33 @@ function App() {
 
 		getAudioDevice();
 	},[]);
+
+	useEffect(() => {
+		navigator.mediaDevices.getUserMedia({ audio: {deviceId: selectedAudioDevice}}).then(async (stream) => {
+			console.log("オーディオ取得出来てるよ！ : ",stream);
+			const audioContext = new AudioContext();
+			//const processor = audioContext.createScriptProcessor(4096, 1, 1);
+			await audioContext.audioWorklet.addModule('lib/processor.js');
+			const audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-processor');
+
+			const source = audioContext.createMediaStreamSource(stream);
+			source.connect(audioWorkletNode);
+
+			audioWorkletNode.port.onmessage = (event) => {
+				console.log("オーディオデータ : " ,event.data);
+			}
+
+			audioWorkletNode.connect(audioContext.destination);
+		});
+	},[selectedAudioDevice, togleMute]);
+
+	useEffect(() => {
+		console.log("コネクト！！！！！");
+		console.log(socket);
+		return(() => {
+			socket.disconnect();
+		})
+	},[socket]);
 
 	return (
 		<div>
