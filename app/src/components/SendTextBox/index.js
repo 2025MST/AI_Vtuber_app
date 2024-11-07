@@ -5,7 +5,6 @@ import { Send } from "@mui/icons-material";
 export const SendTextBox = ({ sendText, setSendText }) => {
     return(
         <Box sx={{
-            position: 'fixed',
             bottom: '3%',
             left : '50%',
             transform: 'translate(-50%,-50%)',
