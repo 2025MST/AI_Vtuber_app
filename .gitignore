@@ -10,6 +10,7 @@ logs/
 dist/
 /app/build/
 app/build/
+/app/resource/
 /electron-builder/
 
 

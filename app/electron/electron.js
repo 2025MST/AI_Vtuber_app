@@ -7,6 +7,7 @@ require('electron-reload')(path.join(__dirname, '../build'),{
 
 let mainWindow;
 let pythonServer;
+let voicevoxServer;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -39,6 +40,15 @@ function createWindow() {
             },3000);
             console.log("Python Server stoped");
         }
+        if (voicevoxServer) {
+            voicevoxServer.kill('SIGINT');
+            setTimeout(() => {
+                if (!voicevoxServer.killed) {
+                    voicevoxServer.kill('SIGKILL');
+                }
+            },3000);
+            console.log("VOICE VOX Server stoped");
+        }
     });
 }
 
@@ -58,6 +68,16 @@ app.whenReady().then(() => {
     });
 
     createWindow();
+
+    voicevoxServer = spawn(path.join(__dirname, '../resource/voicevox_engine-windows-cpu-0.21.1/windows-cpu','run.exe'));
+
+    voicevoxServer.stdout.on('data', (data) => {
+        console.log(`VOICEVOX : ${data}`);
+    });
+
+    voicevoxServer.stderr.on('data', (data) => {
+        console.log(`VOICEVOX ERROR : ${data}`);
+    });
 
     // F12キーでフルスクリーンのトグル
     globalShortcut.register('F12', () => {
