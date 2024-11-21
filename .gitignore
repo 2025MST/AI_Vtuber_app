@@ -12,7 +12,7 @@ dist/
 app/build/
 /app/resource/
 /electron-builder/
-
+tmp/
 
 venv/
 env/
