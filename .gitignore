@@ -18,6 +18,7 @@ venv/
 env/
 .venv/
 .env/
+.env
 
 .pytest_cache/
 *.pid

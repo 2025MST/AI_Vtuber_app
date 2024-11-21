@@ -92,7 +92,7 @@ function App() {
 				<ChatBox socket={socket} />
 			)}
 
-			<Live2DView />
+			<Live2DView socket={socket}/>
 		</div>
 	);
 }

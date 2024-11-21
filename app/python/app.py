@@ -7,10 +7,13 @@ import os
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="eventlet")
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../public")
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../tmp")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "Vtuber_speech.wav")
 HOST = "127.0.0.1"
 VOICE_VOX_PORT = 50021
+
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 
 def audio_query(text, speaker=1):
     try:
