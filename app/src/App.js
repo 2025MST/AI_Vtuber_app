@@ -6,7 +6,8 @@ import { TogleButton } from './components/TogleButton';
 import { SettingModal } from './components/SettingModal';
 import { SendTextBox } from './components/SendTextBox';
 import { ChatBox } from './components/ChatBox';
-import io from 'socket.io-client';
+import useChatgpt from './hooks/useChatgpt';
+import useVoiceVox from './hooks/useVoiceVox';
 
 function App() {
 
@@ -19,7 +20,8 @@ function App() {
 	const [sendText, setSendText] = useState("");
 	const [twitchUrl, setTwitchUrl] = useState("");
 
-	const socket = io("http://localhost:5000");
+	const chatgpt = useChatgpt();
+	const voicevox = useVoiceVox();
 
 	return (
 		<div>
@@ -68,10 +70,10 @@ function App() {
 			</Modal>
 
 			{togleComment && (
-				<ChatBox socket={socket} />
+				<ChatBox chatgpt={chatgpt} voicevox={voicevox} />
 			)}
 
-			<Live2DView socket={socket}/>
+			<Live2DView voicevox={voicevox} />
 		</div>
 	);
 }

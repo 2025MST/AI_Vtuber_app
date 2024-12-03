@@ -1,12 +1,12 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
+require('dotenv').config({ path : path.resolve(__dirname, '../../.env')});
 require('electron-reload')(path.join(__dirname, '../build'),{
     electron: require(`${__dirname}/../../node_modules/electron`)
 })
 
 let mainWindow;
-let pythonServer;
 let voicevoxServer;
 
 function createWindow() {
@@ -31,15 +31,6 @@ function createWindow() {
 
     mainWindow.on('closed', () => {
         mainWindow = null;
-        if (pythonServer) {
-            pythonServer.kill('SIGINT');
-            setTimeout(() => {
-            if (!pythonServer.killed) {
-                pythonServer.kill('SIGKILL');
-            }
-            },3000);
-            console.log("Python Server stoped");
-        }
         if (voicevoxServer) {
             voicevoxServer.kill('SIGINT');
             setTimeout(() => {
@@ -53,20 +44,6 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-    // Python Flaskサーバーを起動
-    const pythonCmd = process.platform == 'win32' ? 'python' : 'python3';
-    pythonServer = spawn(pythonCmd, [path.join(__dirname, '../python/app.py')], {
-        stdio: ['pipe', 'pipe', 'pipe'],
-        env: { ...process.env, PYTHONBUFFERED: '1' }
-    });
-    pythonServer.stdout.on('data', (data) => {
-        console.log(`Flask: ${data}`);
-    });
-
-    pythonServer.stderr.on('data', (data) => {
-        console.error(`Flask Error: ${data}`);
-    });
-
     createWindow();
 
     voicevoxServer = spawn(path.join(__dirname, '../resource/voicevox_engine-windows-cpu-0.21.1/windows-cpu','run.exe'));
@@ -95,6 +72,8 @@ app.whenReady().then(() => {
         }
     });
 });
+
+ipcMain.handle('get-api-key', () => process.env.OPENAI_PUBLIC_KEY);
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

@@ -2,7 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-contextBridge.exposeInMainWorld('electronAPI', {
+contextBridge.exposeInMainWorld('Electron', {
     getAudioDevices: () => navigator.mediaDevices.enumerateDevices(),
     deleteFile: (filePath) => {
         try {
@@ -13,4 +13,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
             return false;
         } 
     },
+    getApiKey: () => ipcRenderer.invoke('get-api-key'),
 });

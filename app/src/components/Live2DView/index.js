@@ -4,7 +4,7 @@ import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
 
 window.PIXI = PIXI;
 
-const Live2DView = ({ socket }) => {
+const Live2DView = React.memo(({ voicevox }) => {
     const canvasRef = useRef(null);
     const appRef = useRef(null); // PIXI.Applicationのインスタンスを保持
     const modelRef = useRef(null); // Live2Dモデルを保持
@@ -135,16 +135,6 @@ const Live2DView = ({ socket }) => {
         window.addEventListener('mouseout', onMouseOut);
         window.addEventListener('wheel', onWheel);
 
-        socket.on('audio_generated', () => {
-            if (modelRef.current) {
-                modelRef.current.speak('../../tmp/Vtuber_speech.wav', {
-                    onFinish: () => {
-                        window.electronAPI.deleteFile('../../tmp/Vtuber_speech.wav');
-                    },
-                });
-            }
-        });
-
         return () => {
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mousedown', onMouseDown);
@@ -156,9 +146,22 @@ const Live2DView = ({ socket }) => {
                 modelRef.current.destroy();
             }
         };
-    }, [socket]);
+    }, []);
+
+    useEffect(() => {
+        if (voicevox.isSpeech && modelRef.current) {
+            const audioBlob = new Blob([voicevox.audioData], { type: 'audio/wav' });
+            const audioURL = URL.createObjectURL(audioBlob);
+
+            modelRef.current.speak(audioURL,{
+                onFinish: () => {
+                    voicevox.setSpeech(false);
+                }
+            });
+        }
+    },[voicevox]);
 
     return <canvas ref={canvasRef} />;
-};
+});
 
 export default Live2DView;

@@ -4,23 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { InputTextBox } from './InputTextBox';
 import { ChatLog } from './ChatLog';
 
-export const ChatBox = ({ socket }) => {
+export const ChatBox = ({ chatgpt, voicevox }) => {
     const [chatData, setChatData] = useState(() => {
         // localStorageから既存のチャットデータを取得
         const savedChatData = localStorage.getItem('chatData');
         return savedChatData ? JSON.parse(savedChatData) : [];
     });
-
-    useEffect(() => {
-        // サーバーからの応答を受け取る
-        socket.on('server_responce_text', (textData) => {
-            setChatData((prev) => {
-                const newChatData = [...prev, { from: 'ai', text: textData }];
-                localStorage.setItem('chatData', JSON.stringify(newChatData)); // 更新後に保存
-                return newChatData;
-            });
-        });
-    }, [socket]);
 
     useEffect(() => {
         // チャットデータが変更されたときにlocalStorageに保存
@@ -34,7 +23,16 @@ export const ChatBox = ({ socket }) => {
                 localStorage.setItem('chatData', JSON.stringify(newChatData)); // 更新後に保存
                 return newChatData;
             });
-            socket.emit('user_text_data', inputData);
+
+            const aiResponse = await chatgpt.getChatgptResponse(inputData);
+
+            setChatData((prev) => {
+                const newChatData = [...prev, { from: 'ai', text: aiResponse}];
+                localStorage.setItem('chatData', JSON.stringify(newChatData));
+                return newChatData;
+            });
+
+            voicevox.generateVoice(aiResponse);
         }
     };
 
