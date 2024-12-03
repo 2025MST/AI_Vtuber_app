@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Live2DView from './components/Live2DView';
-import { Box, FormControl, IconButton, InputLabel, MenuItem, Modal, Select, Stack, TextField, Typography } from '@mui/material';
-import { Comment, CommentsDisabled, Mic, MicOff, Send, Settings, TextFields } from '@mui/icons-material';
+import { Modal, Stack, } from '@mui/material';
+import { Comment, CommentsDisabled, Mic, MicOff, Settings } from '@mui/icons-material';
 import { TogleButton } from './components/TogleButton';
 import { SettingModal } from './components/SettingModal';
-import { SendTextBox } from './components/SendTextBox';
 import { ChatBox } from './components/ChatBox';
 import useChatgpt from './hooks/useChatgpt';
 import useVoiceVox from './hooks/useVoiceVox';
@@ -13,11 +12,9 @@ function App() {
 
 	const [settingOpen, setSettingOpen] = useState(false);
 	const [togleMute, setTogleMute] = useState(false);
-	const [togleText, setTogleText] = useState(false);
 	const [togleComment, setTogleComment] = useState(false);
 	const [audioDeviceList, setAudioDeviceList] = useState([]);
 	const [selectedAudioDevice, setSelectedAudioDevice] = useState(null);
-	const [sendText, setSendText] = useState("");
 	const [twitchUrl, setTwitchUrl] = useState("");
 
 	const chatgpt = useChatgpt();
