@@ -14,7 +14,6 @@ export const ChatBox = ({ socket }) => {
     useEffect(() => {
         // サーバーからの応答を受け取る
         socket.on('server_responce_text', (textData) => {
-            console.log('ai_res : ', textData);
             setChatData((prev) => {
                 const newChatData = [...prev, { from: 'ai', text: textData }];
                 localStorage.setItem('chatData', JSON.stringify(newChatData)); // 更新後に保存

@@ -141,13 +141,7 @@ const Live2DView = ({ socket }) => {
             if (model) {
                 model.speak('../../tmp/Vtuber_speech.wav', {
                     onFinish: () => {
-                        console.log('音声を読み上げました');
                         const res = window.electronAPI.deleteFile('../../tmp/Vtuber_speech.wav');
-                        if (res) {
-                            console.log('音声削除完了');
-                        } else {
-                            console.error('音声削除失敗 ]: ');
-                        }
                     },
                 });
             }

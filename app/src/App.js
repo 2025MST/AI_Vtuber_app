@@ -21,27 +21,6 @@ function App() {
 
 	const socket = io("http://localhost:5000");
 
-	useEffect(() => {
-		const getAudioDevice = async () => {
-			navigator.mediaDevices.enumerateDevices().then(deviceInfo => {
-				console.log("デバイス確認テスト",deviceInfo)
-				const audioDevices = deviceInfo.filter(device => device.kind === 'audioinput');
-				console.log("音声デバイス確認テスト",audioDevices);
-				setAudioDeviceList(audioDevices);
-			});
-		}
-
-		getAudioDevice();
-	},[]);
-
-	useEffect(() => {
-		console.log("コネクト！！！！！");
-		console.log(socket);
-		return(() => {
-			socket.disconnect();
-		})
-	},[socket]);
-
 	return (
 		<div>
 			<Stack direction="column" spacing={1} sx={{
