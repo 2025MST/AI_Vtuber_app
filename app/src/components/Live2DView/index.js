@@ -4,31 +4,58 @@ import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
 
 window.PIXI = PIXI;
 
-const Live2DView = ({socket}) => {
-
+const Live2DView = ({ socket }) => {
     const canvasRef = useRef(null);
     const [isIdle, setIsIdle] = useState(false);
     const IDLE_TIME = 3000;
 
     useEffect(() => {
+        const app = new PIXI.Application({
+            view: canvasRef.current,
+            width: 1000,
+            height: window.innerHeight * 0.95,
+            backgroundColor: 0x1099bb,
+        });
 
-        const app = new PIXI.Application({ 
-                        view: canvasRef.current,
-                        width: 1000,
-                        height: window.innerHeight * 0.95,
-                        backgroundColor: 0x1099bb,
-                    });
         let model;
         let idleTimeout;
+        let animationFrame;
 
-        const resetFocus = () => {
+        // ドラッグ状態を管理
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let modelStartX = 0;
+        let modelStartY = 0;
+
+        const smoothResetFocus = () => {
             if (model) {
-                model.internalModel.focusController.x = 0;
-                model.internalModel.focusController.y = 0;
-                model.internalModel.focusController.vx = 0;
-                model.internalModel.focusController.vy = 0;
-                model.internalModel.focusController.targetX = 0;
-                model.internalModel.focusController.targetY = 0;
+                const focusController = model.internalModel.focusController;
+
+                const resetStep = () => {
+                    const currentX = focusController.targetX || 0;
+                    const currentY = focusController.targetY || 0;
+                    const dx = -currentX;
+                    const dy = -currentY;
+                    const speed = 0.05;
+
+                    const newX = currentX + dx * speed;
+                    const newY = currentY + dy * speed;
+
+                    focusController.targetX = newX;
+                    focusController.targetY = newY;
+
+                    if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) {
+                        cancelAnimationFrame(animationFrame);
+                        focusController.targetX = 0;
+                        focusController.targetY = 0;
+                        return;
+                    }
+
+                    animationFrame = requestAnimationFrame(resetStep);
+                };
+
+                resetStep();
             }
         };
 
@@ -42,56 +69,99 @@ const Live2DView = ({socket}) => {
                 clearTimeout(idleTimeout);
                 idleTimeout = setTimeout(() => {
                     setIsIdle(true);
-                    resetFocus();
-                },IDLE_TIME);
+                    smoothResetFocus();
+                }, IDLE_TIME);
             }
-        }
-        
-        // Live2Dロード用関数
+
+            // ドラッグ中の場合、モデルを移動
+            if (isDragging && model) {
+                const dx = event.clientX - dragStartX;
+                const dy = event.clientY - dragStartY;
+                model.position.set(modelStartX + dx, modelStartY + dy);
+            }
+        };
+
+        const onMouseDown = (event) => {
+            if (model) {
+                isDragging = true;
+                dragStartX = event.clientX;
+                dragStartY = event.clientY;
+                modelStartX = model.position.x;
+                modelStartY = model.position.y;
+            }
+        };
+
+        const onMouseUp = () => {
+            isDragging = false;
+        };
+
+        const onMouseOut = () => {
+            isDragging = false; // ウィンドウ外でドラッグ状態を解除
+        };
+
+        const onWheel = (event) => {
+            if (model) {
+                const scaleFactor = 0.1; // 1回のホイール操作での拡大縮小率
+                const delta = event.deltaY > 0 ? -scaleFactor : scaleFactor; // スクロール方向で拡大・縮小
+                const newScaleX = Math.min(Math.max(model.scale.x + delta, 0.5), 2); // 最小0.5倍、最大2倍
+                const newScaleY = Math.min(Math.max(model.scale.y + delta, 0.5), 2);
+
+                model.scale.set(newScaleX, newScaleY);
+            }
+        };
+
         const Live2DLoader = async () => {
             try {
                 model = await Live2DModel.from('../../public/model/Kei/kei_basic_free.model3.json');
-                console.log("Model loaded", model);
+                console.log('Model loaded', model);
                 app.stage.addChild(model);
-                // モデルのスケーリングと位置の調整
-                model.scale.set(1,1);  // モデルのサイズ調整
-                model.anchor.set(0,0);
-                model.position.set(0,0);
 
+                model.scale.set(1, 1);
+                model.anchor.set(0, 0);
+                model.position.set(0, 0);
             } catch (error) {
-                console.error("Error loading model:", error);
+                console.error('Error loading model:', error);
             }
-        }
+        };
 
         Live2DLoader();
 
-        // ウィンドウサイズ変更時の処理
         window.addEventListener('resize', () => {
-            model.position.set(0, 0);
+            if (model) model.position.set(0, 0);
         });
         window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mouseup', onMouseUp);
+        window.addEventListener('mouseout', onMouseOut);
+        window.addEventListener('wheel', onWheel); // ホイールイベントを追加
 
-        
         socket.on('audio_generated', () => {
-            console.log("読み上げ音声を取得しました");
+            console.log('読み上げ音声を取得しました');
 
             if (model) {
-                model.speak('../../tmp/Vtuber_speech.wav',{
+                model.speak('../../tmp/Vtuber_speech.wav', {
                     onFinish: () => {
-                        console.log("音声を読み上げました");
+                        console.log('音声を読み上げました');
                         const res = window.electronAPI.deleteFile('../../tmp/Vtuber_speech.wav');
                         if (res) {
-                            console.log("音声削除完了");
+                            console.log('音声削除完了');
                         } else {
-                            console.error("音声削除失敗 ]: ");
+                            console.error('音声削除失敗 ]: ');
                         }
-                    }
+                    },
                 });
             }
         });
 
-    },[socket]);
-
+        return () => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mousedown', onMouseDown);
+            window.removeEventListener('mouseup', onMouseUp);
+            window.removeEventListener('mouseout', onMouseOut);
+            window.removeEventListener('wheel', onWheel);
+            cancelAnimationFrame(animationFrame);
+        };
+    }, [socket]);
 
     return (
         <div>
