@@ -4,8 +4,17 @@ import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
 
 window.PIXI = PIXI;
 
-const Live2DView = ({ socket }) => {
+const Live2DView = React.memo(({ voicevox }) => {
     const canvasRef = useRef(null);
+    const appRef = useRef(null); // PIXI.Applicationのインスタンスを保持
+    const modelRef = useRef(null); // Live2Dモデルを保持
+    const idleTimeoutRef = useRef(null); // idleタイムアウトを保持
+    const animationFrameRef = useRef(null); // アニメーションフレームを保持
+    const isDraggingRef = useRef(false); // ドラッグ状態を保持
+    const dragStartRef = useRef({ x: 0, y: 0 }); // ドラッグ開始位置を保持
+    const modelStartRef = useRef({ x: 0, y: 0 }); // モデルの開始位置を保持
+    const scaleRef = useRef(1); // スケールを保持
+
     const [isIdle, setIsIdle] = useState(false);
     const IDLE_TIME = 3000;
 
@@ -16,21 +25,11 @@ const Live2DView = ({ socket }) => {
             height: window.innerHeight * 0.95,
             backgroundColor: 0x1099bb,
         });
-
-        let model;
-        let idleTimeout;
-        let animationFrame;
-
-        // ドラッグ状態を管理
-        let isDragging = false;
-        let dragStartX = 0;
-        let dragStartY = 0;
-        let modelStartX = 0;
-        let modelStartY = 0;
+        appRef.current = app;
 
         const smoothResetFocus = () => {
-            if (model) {
-                const focusController = model.internalModel.focusController;
+            if (modelRef.current) {
+                const focusController = modelRef.current.internalModel.focusController;
 
                 const resetStep = () => {
                     const currentX = focusController.targetX || 0;
@@ -46,13 +45,13 @@ const Live2DView = ({ socket }) => {
                     focusController.targetY = newY;
 
                     if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) {
-                        cancelAnimationFrame(animationFrame);
+                        cancelAnimationFrame(animationFrameRef.current);
                         focusController.targetX = 0;
                         focusController.targetY = 0;
                         return;
                     }
 
-                    animationFrame = requestAnimationFrame(resetStep);
+                    animationFrameRef.current = requestAnimationFrame(resetStep);
                 };
 
                 resetStep();
@@ -60,60 +59,61 @@ const Live2DView = ({ socket }) => {
         };
 
         const onMouseMove = (event) => {
-            if (isIdle) {
-                setIsIdle(false);
-            }
+            if (isIdle) setIsIdle(false);
 
-            if (model && !isIdle) {
-                model.focus(event.clientX, event.clientY);
-                clearTimeout(idleTimeout);
-                idleTimeout = setTimeout(() => {
+            if (modelRef.current && !isIdle) {
+                modelRef.current.focus(event.clientX, event.clientY);
+                clearTimeout(idleTimeoutRef.current);
+                idleTimeoutRef.current = setTimeout(() => {
                     setIsIdle(true);
                     smoothResetFocus();
                 }, IDLE_TIME);
             }
 
             // ドラッグ中の場合、モデルを移動
-            if (isDragging && model) {
-                const dx = event.clientX - dragStartX;
-                const dy = event.clientY - dragStartY;
-                model.position.set(modelStartX + dx, modelStartY + dy);
+            if (isDraggingRef.current && modelRef.current) {
+                const dx = event.clientX - dragStartRef.current.x;
+                const dy = event.clientY - dragStartRef.current.y;
+                modelRef.current.position.set(
+                    modelStartRef.current.x + dx,
+                    modelStartRef.current.y + dy
+                );
             }
         };
 
         const onMouseDown = (event) => {
-            if (model) {
-                isDragging = true;
-                dragStartX = event.clientX;
-                dragStartY = event.clientY;
-                modelStartX = model.position.x;
-                modelStartY = model.position.y;
+            if (modelRef.current) {
+                isDraggingRef.current = true;
+                dragStartRef.current = { x: event.clientX, y: event.clientY };
+                modelStartRef.current = {
+                    x: modelRef.current.position.x,
+                    y: modelRef.current.position.y,
+                };
             }
         };
 
         const onMouseUp = () => {
-            isDragging = false;
+            isDraggingRef.current = false;
         };
 
         const onMouseOut = () => {
-            isDragging = false; // ウィンドウ外でドラッグ状態を解除
+            isDraggingRef.current = false; // ウィンドウ外でドラッグ状態を解除
         };
 
         const onWheel = (event) => {
-            if (model) {
+            if (modelRef.current) {
                 const scaleFactor = 0.1; // 1回のホイール操作での拡大縮小率
                 const delta = event.deltaY > 0 ? -scaleFactor : scaleFactor; // スクロール方向で拡大・縮小
-                const newScaleX = Math.min(Math.max(model.scale.x + delta, 0.5), 2); // 最小0.5倍、最大2倍
-                const newScaleY = Math.min(Math.max(model.scale.y + delta, 0.5), 2);
-
-                model.scale.set(newScaleX, newScaleY);
+                const newScale = Math.min(Math.max(scaleRef.current + delta, 0.5), 2); // 最小0.5倍、最大2倍
+                scaleRef.current = newScale;
+                modelRef.current.scale.set(newScale, newScale);
             }
         };
 
         const Live2DLoader = async () => {
             try {
-                model = await Live2DModel.from('../../public/model/Kei/kei_basic_free.model3.json');
-                console.log('Model loaded', model);
+                const model = await Live2DModel.from('../../public/model/Kei/kei_basic_free.model3.json');
+                modelRef.current = model;
                 app.stage.addChild(model);
 
                 model.scale.set(1, 1);
@@ -127,31 +127,13 @@ const Live2DView = ({ socket }) => {
         Live2DLoader();
 
         window.addEventListener('resize', () => {
-            if (model) model.position.set(0, 0);
+            if (modelRef.current) modelRef.current.position.set(0, 0);
         });
         window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('mousedown', onMouseDown);
         window.addEventListener('mouseup', onMouseUp);
         window.addEventListener('mouseout', onMouseOut);
-        window.addEventListener('wheel', onWheel); // ホイールイベントを追加
-
-        socket.on('audio_generated', () => {
-            console.log('読み上げ音声を取得しました');
-
-            if (model) {
-                model.speak('../../tmp/Vtuber_speech.wav', {
-                    onFinish: () => {
-                        console.log('音声を読み上げました');
-                        const res = window.electronAPI.deleteFile('../../tmp/Vtuber_speech.wav');
-                        if (res) {
-                            console.log('音声削除完了');
-                        } else {
-                            console.error('音声削除失敗 ]: ');
-                        }
-                    },
-                });
-            }
-        });
+        window.addEventListener('wheel', onWheel);
 
         return () => {
             window.removeEventListener('mousemove', onMouseMove);
@@ -159,15 +141,27 @@ const Live2DView = ({ socket }) => {
             window.removeEventListener('mouseup', onMouseUp);
             window.removeEventListener('mouseout', onMouseOut);
             window.removeEventListener('wheel', onWheel);
-            cancelAnimationFrame(animationFrame);
+            cancelAnimationFrame(animationFrameRef.current);
+            if (modelRef.current) {
+                modelRef.current.destroy();
+            }
         };
-    }, [socket]);
+    }, []);
 
-    return (
-        <div>
-            <canvas ref={canvasRef} />
-        </div>
-    );
-};
+    useEffect(() => {
+        if (voicevox.isSpeech && modelRef.current) {
+            const audioBlob = new Blob([voicevox.audioData], { type: 'audio/wav' });
+            const audioURL = URL.createObjectURL(audioBlob);
+
+            modelRef.current.speak(audioURL,{
+                onFinish: () => {
+                    voicevox.setSpeech(false);
+                }
+            });
+        }
+    },[voicevox]);
+
+    return <canvas ref={canvasRef} />;
+});
 
 export default Live2DView;

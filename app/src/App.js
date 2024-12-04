@@ -1,46 +1,24 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Live2DView from './components/Live2DView';
-import { Box, FormControl, IconButton, InputLabel, MenuItem, Modal, Select, Stack, TextField, Typography } from '@mui/material';
-import { Comment, CommentsDisabled, Mic, MicOff, Send, Settings, TextFields } from '@mui/icons-material';
+import { Modal, Stack, } from '@mui/material';
+import { Comment, CommentsDisabled, Mic, MicOff, Settings } from '@mui/icons-material';
 import { TogleButton } from './components/TogleButton';
 import { SettingModal } from './components/SettingModal';
-import { SendTextBox } from './components/SendTextBox';
 import { ChatBox } from './components/ChatBox';
-import io from 'socket.io-client';
+import useChatgpt from './hooks/useChatgpt';
+import useVoiceVox from './hooks/useVoiceVox';
 
 function App() {
 
 	const [settingOpen, setSettingOpen] = useState(false);
 	const [togleMute, setTogleMute] = useState(false);
-	const [togleText, setTogleText] = useState(false);
 	const [togleComment, setTogleComment] = useState(false);
 	const [audioDeviceList, setAudioDeviceList] = useState([]);
 	const [selectedAudioDevice, setSelectedAudioDevice] = useState(null);
-	const [sendText, setSendText] = useState("");
 	const [twitchUrl, setTwitchUrl] = useState("");
 
-	const socket = io("http://localhost:5000");
-
-	useEffect(() => {
-		const getAudioDevice = async () => {
-			navigator.mediaDevices.enumerateDevices().then(deviceInfo => {
-				console.log("デバイス確認テスト",deviceInfo)
-				const audioDevices = deviceInfo.filter(device => device.kind === 'audioinput');
-				console.log("音声デバイス確認テスト",audioDevices);
-				setAudioDeviceList(audioDevices);
-			});
-		}
-
-		getAudioDevice();
-	},[]);
-
-	useEffect(() => {
-		console.log("コネクト！！！！！");
-		console.log(socket);
-		return(() => {
-			socket.disconnect();
-		})
-	},[socket]);
+	const chatgpt = useChatgpt();
+	const voicevox = useVoiceVox();
 
 	return (
 		<div>
@@ -89,10 +67,10 @@ function App() {
 			</Modal>
 
 			{togleComment && (
-				<ChatBox socket={socket} />
+				<ChatBox chatgpt={chatgpt} voicevox={voicevox} />
 			)}
 
-			<Live2DView socket={socket}/>
+			<Live2DView voicevox={voicevox} />
 		</div>
 	);
 }
