@@ -53,6 +53,10 @@ function App() {
 				<TogleButton
 					label={"setting"} 
 					onClick={() => setSettingOpen(!settingOpen)}
+					style={{
+						background : togleComment ? 'white' : 'black',
+						color : togleComment ? 'black' : 'white',
+					}}
 					innerIcon={<Settings fontSize='inherit' />}
 				/>
 				<TogleButton

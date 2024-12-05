@@ -42,8 +42,8 @@ export const ChatBox = ({ socket }) => {
     return (
         <Box
             sx={{
-                height: '95%',
-                width: '600px',
+                height: window.innerHeight,
+                width: window.innerWidth * 0.35,
                 backgroundColor: '#f9f9f9',
                 position: 'absolute',
                 right: '0',

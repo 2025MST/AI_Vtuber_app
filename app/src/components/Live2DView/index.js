@@ -14,9 +14,9 @@ const Live2DView = ({socket}) => {
 
         const app = new PIXI.Application({ 
                         view: canvasRef.current,
-                        width: 1000,
-                        height: window.innerHeight * 0.95,
-                        backgroundColor: 0x1099bb,
+                        width: window.innerWidth,
+                        height: window.innerHeight,
+                        backgroundColor: 0xffff00,
                     });
         let model;
         let idleTimeout;
@@ -54,8 +54,8 @@ const Live2DView = ({socket}) => {
                 console.log("Model loaded", model);
                 app.stage.addChild(model);
                 // モデルのスケーリングと位置の調整
-                model.scale.set(1,1);  // モデルのサイズ調整
-                model.anchor.set(0,0);
+                model.scale.set(0.7,0.7);  // モデルのサイズ調整
+                model.anchor.set(-0.5,-0.2);//モデル位置調整(左右、上下)
                 model.position.set(0,0);
 
             } catch (error) {
