@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as PIXI from 'pixi.js';
 import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
+import { CameraRearRounded } from '@mui/icons-material';
 
 window.PIXI = PIXI;
 
-const Live2DView = React.memo(({ voicevox }) => {
+const Live2DView = React.memo(({ voicevox, cameraRecognition, isCameraOn }) => {
     const canvasRef = useRef(null);
     const appRef = useRef(null); // PIXI.Applicationのインスタンスを保持
     const modelRef = useRef(null); // Live2Dモデルを保持
@@ -160,6 +161,33 @@ const Live2DView = React.memo(({ voicevox }) => {
             });
         }
     },[voicevox]);
+
+    useEffect(() => {
+        if (isCameraOn && modelRef.current) {
+            
+            const updateFocus = () => {
+
+                const focusController = modelRef.current.internalModel.focusController;
+                const canvasWidth = appRef.current.view.width;
+                const canvasHeight= appRef.current.view.height;
+                const videoWidth = cameraRecognition.videoEl.videoWidth;
+                const videoHeight = cameraRecognition.videoEl.videoHeight;
+
+                const normalizedX = (cameraRecognition.faceX / videoWidth) * canvasWidth;
+                const normalizedY = (cameraRecognition.faceY / videoHeight) * canvasHeight;
+
+                const newX = (normalizedX / canvasWidth) * 2 - 1;
+                const newY = (normalizedY / canvasHeight) * 2 - 1;
+
+                focusController.targetX = Math.max(-1, Math.min(1, newX));
+                focusController.targetY = Math.max(-1, Math.min(1, newY));
+
+            }
+
+            const interval = setInterval(updateFocus, 100);
+            return () => clearInterval(interval);
+        }
+    },[isCameraOn]);
 
     return <canvas ref={canvasRef} />;
 });
