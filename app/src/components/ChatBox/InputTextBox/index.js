@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Box, TextField, IconButton } from '@mui/material';
 import { Send } from '@mui/icons-material';
 
-export const InputTextBox = ({onSend}) => {
-
+export const InputTextBox = ({ onSend, isMicOn, interimText }) => {
     const [inputText, setInputText] = useState('');
 
     const handleSend = () => {
@@ -11,32 +10,38 @@ export const InputTextBox = ({onSend}) => {
             onSend(inputText);
             setInputText('');
         }
-    }
+    };
 
-    return(
-        <Box sx={{
-            position: 'absolute',
-            bottom: '15px',
-            left : '50%',
-            transform: 'translateX(-50%)',
-            width: '95%',
-            maxWidth: '500px',
-            backgroundColor: '#f7f7f7',
-            borderRadius : 50,
-            display: 'flex',
-            alignItems: 'center',
-            boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
-            padding: '5px 10px',
-        }}>
-            <TextField 
-                onChange={(event) => setInputText(event.target.value)}
+    return (
+        <Box
+            sx={{
+                position: 'absolute',
+                bottom: '15px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '95%',
+                maxWidth: '500px',
+                backgroundColor: '#f7f7f7',
+                borderRadius: 50,
+                display: 'flex',
+                alignItems: 'center',
+                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
+                padding: '5px 10px',
+            }}
+        >
+            <TextField
+                value={isMicOn ? interimText || '' : inputText}
+                onChange={(event) => !isMicOn && setInputText(event.target.value)} // マイクオン時は編集不可
                 onKeyPress={(event) => {
-                    if (event.key === 'Enter') handleSend();
+                    if (!isMicOn && event.key === 'Enter') handleSend(); // マイクオフ時のみ送信可能
                 }}
-                value={inputText} 
-                sx={{ 
-                    flexGrow: 1, 
-                    margin: 1, 
+                placeholder={isMicOn ? '話してください...' : 'メッセージを入力'}
+                InputProps={{
+                    readOnly: isMicOn, // マイクオン時は読み取り専用
+                }}
+                sx={{
+                    flexGrow: 1,
+                    margin: 1,
                     backgroundColor: '#fff',
                     borderRadius: '20px',
                     '& .MuiOutlinedInput-root': {
@@ -52,21 +57,22 @@ export const InputTextBox = ({onSend}) => {
                     },
                     input: {
                         padding: '10px 15px',
-                    }
-                }} 
-                placeholder='メッセージを入力'
-            />
-            <IconButton
-                onClick={handleSend}
-                sx={{
-                    width: '50px',
-                    height: '50px',
-                    color: '#00b900', // LINEの送信ボタンの緑色
-                    marginRight: '5px'
+                    },
                 }}
-            >
-                <Send fontSize="large" />
-            </IconButton>
+            />
+            {!isMicOn && (
+                <IconButton
+                    onClick={handleSend}
+                    sx={{
+                        width: '50px',
+                        height: '50px',
+                        color: '#00b900', // LINEの送信ボタンの緑色
+                        marginRight: '5px',
+                    }}
+                >
+                    <Send fontSize="large" />
+                </IconButton>
+            )}
         </Box>
-    )
-}
+    );
+};

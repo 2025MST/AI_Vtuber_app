@@ -3,8 +3,12 @@ import { Box } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { InputTextBox } from './InputTextBox';
 import { ChatLog } from './ChatLog';
+import { useMicDetection } from '../../hooks/useMicDetection';
 
-export const ChatBox = ({ chatgpt, voicevox }) => {
+export const ChatBox = ({ chatgpt, voicevox, isMicOn }) => {
+
+    const { interimText } = useMicDetection(isMicOn, chatgpt.isLoaded, voicevox.isSpeech, handleSendInputText);
+
     const [chatData, setChatData] = useState(() => {
         // localStorageから既存のチャットデータを取得
         const savedChatData = localStorage.getItem('chatData');
@@ -47,7 +51,11 @@ export const ChatBox = ({ chatgpt, voicevox }) => {
             }}
         >
             <ChatLog chatData={chatData} />
-            <InputTextBox onSend={handleSendInputText} />
+            <InputTextBox
+                onSend={handleSendInputText}
+                isMicOn={isMicOn}
+                interimText={interimText}
+            />
         </Box>
     );
 };

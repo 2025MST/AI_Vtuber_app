@@ -1,8 +1,11 @@
-import React from "react";
+import React,{useEffect, useRef} from "react";
 import { Box, FormControl, InputLabel, Typography, Select, MenuItem, TextField } from "@mui/material";
-import { Mic } from "@mui/icons-material";
+import useFaceDetection from "../../hooks/useFaceDetection";
 
-export const SettingModal = React.forwardRef(({ cameraRecognition }) => {
+export const SettingModal = () => {
+
+    const {videoRef,canvasRef} = useFaceDetection();
+
     return(
         <Box sx={{
             position: 'absolute',
@@ -10,31 +13,40 @@ export const SettingModal = React.forwardRef(({ cameraRecognition }) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             background: 'white',
-            width: '60%',
-            height: '50%',
+            width: '80%',
+            height: '80%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            overflowY: "auto"
         }}>
             <h2>設定</h2>
-            <FormControl sx={{ m: 1, minWidth: 150, maxWidth: 500}}>
-				<video
-					ref={cameraRecognition.videoEl}
-					autoPlay
-					muted
-				/>
-				<canvas
-					ref={cameraRecognition.canvasEl}
-				/>
-				{cameraRecognition ? (
-				  <p>
-					最も近い顔の位置: X: {Math.round(cameraRecognition.faceX)}, Y: {Math.round(cameraRecognition.faceY)}
-				  </p>
-				) : (
-				  <p>顔が検出されませんでした。</p>
-				)}
-            </FormControl>
+            
+            <div style={{ position: "relative", width: "640px", height: "480px" }}>
+                <video
+                    ref={videoRef}
+                    autoPlay
+                    muted
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                    }}
+                />
+                <canvas
+                    ref={canvasRef}
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                    }}
+                />
+            </div>
         </Box>
     )
-});
+};

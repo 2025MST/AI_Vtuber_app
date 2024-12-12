@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Live2DView from './components/Live2DView';
 import { Box, Modal, Stack, } from '@mui/material';
 import { Comment, CommentsDisabled, Mic, MicOff, Settings, Videocam, VideocamOff } from '@mui/icons-material';
 import { TogleButton } from './components/TogleButton';
 import { SettingModal } from './components/SettingModal';
 import { ChatBox } from './components/ChatBox';
+import * as faceapi from "face-api.js";
 import useChatgpt from './hooks/useChatgpt';
 import useVoiceVox from './hooks/useVoiceVox';
-import useCameraRecognition from './hooks/useCameraRecognition';
+import useFaceDetection from './hooks/useFaceDetection';
+import { useMicDetection } from './hooks/useMicDetection';
 
-function App() {
+const App = () => {
 
 	const [settingOpen, setSettingOpen] = useState(false);
-	const [toggleMute, setToggleMute] = useState(false);
+	const [toggleMic, setToggleMic] = useState(false);
 	const [toggleCamera, setToggleCamera] = useState(false);
 	const [toggleComment, setToggleComment] = useState(false);
 
 	const chatgpt = useChatgpt();
 	const voicevox = useVoiceVox();
-	const cameraRecognition = useCameraRecognition();
+  	const {videoRef,canvasRef,coordinates} = useFaceDetection();
 
 	return (
 		<div>
@@ -35,12 +37,12 @@ function App() {
 				/>
 				<TogleButton
 					label={"audioMute"}
-					onClick={() => setToggleMute(!toggleMute)}
+					onClick={() => setToggleMic(!toggleMic)}
 					style={{
-						backgroundColor : toggleMute ? 'white' : 'black',
-						color : toggleMute ? 'black' : 'white',
+						backgroundColor : toggleMic ? 'white' : 'black',
+						color : toggleMic ? 'black' : 'white',
 					}}
-					innerIcon={toggleMute ? <Mic fontSize='inherit' /> : <MicOff fontSize='inherit' />}
+					innerIcon={toggleMic ? <Mic fontSize='inherit' /> : <MicOff fontSize='inherit' />}
 				/>
 				<TogleButton
 					label={"camera"}
@@ -66,17 +68,27 @@ function App() {
 				open={settingOpen}
 				onClose={() => setSettingOpen(false)}
 			>
-				<SettingModal
-					cameraRecognition={cameraRecognition}
-				/>
+				<SettingModal/>
 			</Modal>
 
 			{toggleComment && (
-				<ChatBox chatgpt={chatgpt} voicevox={voicevox} />
+				<ChatBox chatgpt={chatgpt} voicevox={voicevox} isMicOn={toggleMic} />
 			)}
 
-			<Live2DView voicevox={voicevox} cameraRecognition={cameraRecognition} isCameraOn={toggleCamera} />
+			<Live2DView voicevox={voicevox} coordinates={coordinates} isCameraOn={toggleCamera} />
 
+			<div style={{ display: "none" }}>
+				<div style={{ position: "relative", width: "640px", height: "480px" }}>
+					<video
+						ref={videoRef}
+						autoPlay
+						muted
+					/>
+					<canvas
+						ref={canvasRef}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 }

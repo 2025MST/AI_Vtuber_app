@@ -43,6 +43,8 @@ function createWindow() {
     });
 }
 
+app.commandLine.appendSwitch('enable-features', 'WebSpeechAPI');
+
 app.whenReady().then(() => {
     createWindow();
 
